@@ -16,8 +16,8 @@ from utils.torch_utils import select_device, time_sync
 @torch.no_grad()
 def detect(
         source_img,
-        weights='./data/best.pt',  # model.pt path(s)
-        data='./data/mask.yml',  # dataset.yaml path
+        weights='../data/best.pt',  # model.pt path(s)
+        data='../data/mask.yml',  # dataset.yaml path
         imgsz=(640, 640),  # inference size (height, width)
         conf_thres=0.25,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
@@ -96,7 +96,7 @@ def detect(
                 annotator.box_label(xyxy, label, color=colors(c, True))
 
         # Save results (image with detections)
-        cv2.imwrite('./test_res.jpg', im0)
+        cv2.imwrite('./res.jpg', im0)
 
     # Print time (inference-only)
     LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
@@ -106,8 +106,3 @@ def detect(
     LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
     if update:
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
-
-
-if __name__ == '__main__':
-    img = cv2.imread('D:\\учеба\\диплом\\mask_recognition\\data\\images\\test.jpg')
-    detect(img)
