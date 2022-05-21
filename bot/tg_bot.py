@@ -45,6 +45,15 @@ def process_img(message):
         f.write(file)
     img = cv2.imread("image.jpg")
     bot.send_message(message.chat.id, "Начинаю поиск нарушителя!")
-    detect(img)
+    det_info = detect(img)
     img_res = BytesIO(open("res.jpg", "rb").read())
     bot.send_photo(message.chat.id, img_res)
+    if len(det_info.keys()) == 2:
+        bot.send_message(message.chat.id, f'В масках: {det_info["mask"]} \nБез масок: {det_info["no_mask"]}')
+    elif len(det_info.keys()) == 1:
+        if list(det_info.keys())[0] == 'mask':
+            bot.send_message(message.chat.id, f'В масках: {det_info["mask"]} \nБез масок: 0')
+        elif list(det_info.keys())[0] == 'no_mask':
+            bot.send_message(message.chat.id, f'В масках: 0 \nБез масок: {det_info["no_mask"]}')
+    elif len(det_info.keys()) == 0:
+        bot.send_message(message.chat.id, 'Я не смог никого найти 😞')

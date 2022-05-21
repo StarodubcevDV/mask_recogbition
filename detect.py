@@ -27,7 +27,7 @@ def detect(source_img, conf_thres=0.4):
     agnostic_nms = False  # class-agnostic NMS
     augment = False  # augmented inference
     update = False  # update all models
-    line_thickness = 3  # bounding box thickness (pixels)
+    line_thickness = 1  # bounding box thickness (pixels)
     hide_labels = False  # hide labels
     hide_conf = False  # hide confidences
     half = False  # use FP16 half-precision inference
@@ -37,6 +37,8 @@ def detect(source_img, conf_thres=0.4):
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
     stride, names, pt = model.stride, model.names, model.pt
     imgsz = check_img_size(imgsz, s=stride)  # check image size
+
+    det_info = {}
 
     # Dataloader
     img0 = source_img
@@ -86,6 +88,7 @@ def detect(source_img, conf_thres=0.4):
             for c in det[:, -1].unique():
                 n = (det[:, -1] == c).sum()  # detections per class
                 s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
+                det_info[names[int(c)]] = int(n)
 
             # Write results
             for *xyxy, conf, cls in reversed(det):
@@ -104,3 +107,5 @@ def detect(source_img, conf_thres=0.4):
     LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
     if update:
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
+
+    return det_info
