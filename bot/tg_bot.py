@@ -18,6 +18,24 @@ def start_message(message):
     bot.send_message(message.chat.id, 'Здравствуйте! Пришлите ваше фото!')
 
 
+@bot.message_handler(content_types=["sticker"])
+def start_message(message):
+    bot.send_message(message.chat.id, '😀')
+
+
+@bot.message_handler(content_types=['text'])
+def start_message(message):
+    if message.text == '😀':
+        bot.send_message(message.chat.id, '😀')
+    else:
+        bot.send_message(message.chat.id, 'Извините, меня не научили вас понимать.. 😞 \nЛучше пришлите мне ваше фото!')
+
+
+@bot.message_handler(content_types=['audio', 'video', 'video_note', 'document'])
+def start_message(message):
+    bot.send_message(message.chat.id, 'Такое я не могу распознать.. 😞')
+
+
 @bot.message_handler(content_types=['photo'])
 def process_img(message):
     file_id = message.photo[-1].file_id
@@ -28,9 +46,5 @@ def process_img(message):
     img = cv2.imread("image.jpg")
     bot.send_message(message.chat.id, "Начинаю поиск нарушителя!")
     detect(img)
-    img_res = BytesIO(open("./res.jpg", "rb").read())
+    img_res = BytesIO(open("res.jpg", "rb").read())
     bot.send_photo(message.chat.id, img_res)
-
-
-if __name__ == '__main__':
-    bot.polling(none_stop=True)

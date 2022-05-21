@@ -14,26 +14,24 @@ from utils.torch_utils import select_device, time_sync
 
 
 @torch.no_grad()
-def detect(
-        source_img,
-        weights='../data/best.pt',  # model.pt path(s)
-        data='../data/mask.yml',  # dataset.yaml path
-        imgsz=(640, 640),  # inference size (height, width)
-        conf_thres=0.25,  # confidence threshold
-        iou_thres=0.45,  # NMS IOU threshold
-        max_det=1000,  # maximum detections per image
-        device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
-        save_crop=False,  # save cropped prediction boxes
-        classes=None,  # filter by class: --class 0, or --class 0 2 3
-        agnostic_nms=False,  # class-agnostic NMS
-        augment=False,  # augmented inference
-        update=False,  # update all models
-        line_thickness=3,  # bounding box thickness (pixels)
-        hide_labels=False,  # hide labels
-        hide_conf=False,  # hide confidences
-        half=False,  # use FP16 half-precision inference
-        dnn=False,  # use OpenCV DNN for ONNX inference
-):
+def detect(source_img, conf_thres=0.4):
+
+    weights = './data/best.pt'  # model.pt path(s)
+    data = './data/mask.yml'  # dataset.yaml path
+    imgsz = (640, 640)  # inference size (height, width)
+    iou_thres = 0.45  # NMS IOU threshold
+    max_det = 1000  # maximum detections per image
+    device = ''
+    save_crop = False  # save cropped prediction boxes
+    classes = None  # filter by class: --class 0, or --class 0 2 3
+    agnostic_nms = False  # class-agnostic NMS
+    augment = False  # augmented inference
+    update = False  # update all models
+    line_thickness = 3  # bounding box thickness (pixels)
+    hide_labels = False  # hide labels
+    hide_conf = False  # hide confidences
+    half = False  # use FP16 half-precision inference
+    dnn = False  # use OpenCV DNN for ONNX inference
     # Load model
     device = select_device(device)
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)

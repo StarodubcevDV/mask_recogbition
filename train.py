@@ -43,7 +43,7 @@ from utils.metrics import fitness
 from utils.plots import plot_evolve, plot_labels
 from utils.torch_utils import EarlyStopping, ModelEMA, de_parallel, select_device, torch_distributed_zero_first
 
-LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1))  # https://pytorch.org/docs/stable/elastic/run.html
+LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1))
 RANK = int(os.getenv('RANK', -1))
 WORLD_SIZE = int(os.getenv('WORLD_SIZE', 1))
 
@@ -194,8 +194,7 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
 
     # DP mode
     if cuda and RANK == -1 and torch.cuda.device_count() > 1:
-        LOGGER.warning('WARNING: DP not recommended, use torch.distributed.run for best DDP Multi-GPU results.\n'
-                       'See Multi-GPU Tutorial at https://github.com/ultralytics/yolov5/issues/475 to get started.')
+        LOGGER.warning('WARNING: DP not recommended, use torch.distributed.run for best DDP Multi-GPU results.')
         model = torch.nn.DataParallel(model)
 
     # SyncBatchNorm
@@ -415,18 +414,6 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
             if RANK == -1 and stopper(epoch=epoch, fitness=fi):
                 break
 
-            # Stop DDP TODO: known issues shttps://github.com/ultralytics/yolov5/pull/4576
-            # stop = stopper(epoch=epoch, fitness=fi)
-            # if RANK == 0:
-            #    dist.broadcast_object_list([stop], 0)  # broadcast 'stop' to all ranks
-
-        # Stop DPP
-        # with torch_distributed_zero_first(RANK):
-        # if stop:
-        #    break  # must break all DDP ranks
-
-        # end epoch ----------------------------------------------------------------------------------------------------
-    # end training -----------------------------------------------------------------------------------------------------
     if RANK in (-1, 0):
         LOGGER.info(f'\n{epoch - start_epoch + 1} epochs completed in {(time.time() - t0) / 3600:.3f} hours.')
         for f in last, best:
