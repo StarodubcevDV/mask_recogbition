@@ -14,31 +14,31 @@ from utils.torch_utils import select_device, time_sync
 
 
 @torch.no_grad()
-def detect(
-        source_img,
-        weights='./data/best.pt',  # model.pt path(s)
-        data='./data/mask.yml',  # dataset.yaml path
-        imgsz=(640, 640),  # inference size (height, width)
-        conf_thres=0.25,  # confidence threshold
-        iou_thres=0.45,  # NMS IOU threshold
-        max_det=1000,  # maximum detections per image
-        device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
-        save_crop=False,  # save cropped prediction boxes
-        classes=None,  # filter by class: --class 0, or --class 0 2 3
-        agnostic_nms=False,  # class-agnostic NMS
-        augment=False,  # augmented inference
-        update=False,  # update all models
-        line_thickness=3,  # bounding box thickness (pixels)
-        hide_labels=False,  # hide labels
-        hide_conf=False,  # hide confidences
-        half=False,  # use FP16 half-precision inference
-        dnn=False,  # use OpenCV DNN for ONNX inference
-):
+def detect(source_img, conf_thres=0.4):
+
+    weights = './data/best.pt'  # model.pt path(s)
+    data = './data/mask.yml'  # dataset.yaml path
+    imgsz = (640, 640)  # inference size (height, width)
+    iou_thres = 0.45  # NMS IOU threshold
+    max_det = 1000  # maximum detections per image
+    device = ''
+    save_crop = False  # save cropped prediction boxes
+    classes = None  # filter by class: --class 0, or --class 0 2 3
+    agnostic_nms = False  # class-agnostic NMS
+    augment = False  # augmented inference
+    update = False  # update all models
+    line_thickness = 1  # bounding box thickness (pixels)
+    hide_labels = False  # hide labels
+    hide_conf = False  # hide confidences
+    half = False  # use FP16 half-precision inference
+    dnn = False  # use OpenCV DNN for ONNX inference
     # Load model
     device = select_device(device)
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
     stride, names, pt = model.stride, model.names, model.pt
     imgsz = check_img_size(imgsz, s=stride)  # check image size
+
+    det_info = {}
 
     # Dataloader
     img0 = source_img
@@ -88,6 +88,7 @@ def detect(
             for c in det[:, -1].unique():
                 n = (det[:, -1] == c).sum()  # detections per class
                 s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
+                det_info[names[int(c)]] = int(n)
 
             # Write results
             for *xyxy, conf, cls in reversed(det):
@@ -96,7 +97,7 @@ def detect(
                 annotator.box_label(xyxy, label, color=colors(c, True))
 
         # Save results (image with detections)
-        cv2.imwrite('./test_res.jpg', im0)
+        cv2.imwrite('./res.jpg', im0)
 
     # Print time (inference-only)
     LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
@@ -107,7 +108,4 @@ def detect(
     if update:
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
 
-
-if __name__ == '__main__':
-    img = cv2.imread('D:\\учеба\\диплом\\mask_recognition\\data\\images\\test.jpg')
-    detect(img)
+    return det_info

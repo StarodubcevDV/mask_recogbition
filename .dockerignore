@@ -1,0 +1,24 @@
+# git repository related
+.git
+.gitignore
+.gitattributes
+
+# IDE related
+.idea
+.pylintrc
+Makefile
+
+# Docker related
+Dockerfile
+.dockerignore
+
+# Python project related
+.env*
+
+# Other
+*.md
+
+# debugging tools and utils
+debug/
+.pytest_cache/
+
