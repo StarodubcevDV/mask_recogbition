@@ -15,7 +15,7 @@ bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.chat.id, 'Здравствуйте! Пришлите ваше фото!')
+    bot.send_message(message.chat.id, 'Здравствуйте! Пришлите ваше фото!\nДокументы не принимаются!😀')
 
 
 @bot.message_handler(content_types=["sticker"])
